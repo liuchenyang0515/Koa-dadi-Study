@@ -1,15 +1,14 @@
 //引入 koa模块
-
-var Koa=require('koa'),
+const Koa = require('koa'),
     router = require('koa-router')(),
-    path=require('path'),
+    path = require('path'),
     render = require('koa-art-template'),
     static = require('koa-static'),
     session = require('koa-session'),
     bodyParser = require('koa-bodyparser');
 
 //实例化
-var app=new Koa();
+var app = new Koa();
 
 //配置post提交数据的中间件
 app.use(bodyParser());
@@ -38,12 +37,12 @@ render(app, {
 app.use(static(__dirname + '/public'));
 
 //引入模块
-var index=require('./routes/index.js');
-var api=require('./routes/api.js');
-var admin=require('./routes/admin.js');
+const index = require('./routes/index.js');
+const api = require('./routes/api.js');
+const admin = require('./routes/admin.js');
 
-router.use('/admin',admin);
-router.use('/api',api);
+router.use('/admin', admin);
+router.use('/api', api);
 router.use(index);
 
 app.use(router.routes());   /*启动路由*/

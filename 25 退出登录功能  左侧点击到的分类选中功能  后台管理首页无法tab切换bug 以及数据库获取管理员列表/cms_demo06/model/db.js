@@ -5,139 +5,108 @@
  * http://mongodb.github.io/node-mongodb-native/3.0/api/
  */
 
-//DB¿â
-var MongoDB=require('mongodb');
-var MongoClient =MongoDB.MongoClient;
+//DBåº“
+const MongoDB = require('mongodb');
+const MongoClient = MongoDB.MongoClient;
 const ObjectID = MongoDB.ObjectID;
 
-var Config=require('./config.js');
+const Config = require('./config.js');
 
-class Db{
-
-    static getInstance(){   /*1¡¢µ¥Àı  ¶à´ÎÊµÀı»¯ÊµÀı²»¹²ÏíµÄÎÊÌâ*/
-
-        if(!Db.instance){
-            Db.instance=new Db();
+class Db {
+    static getInstance() {   /*1ã€å•ä¾‹  å¤šæ¬¡å®ä¾‹åŒ–å®ä¾‹ä¸å…±äº«çš„é—®é¢˜*/
+        if (!Db.instance) {
+            Db.instance = new Db();
         }
-        return  Db.instance;
+        return Db.instance;
     }
 
-    constructor(){
-
-        this.dbClient=''; /*ÊôĞÔ ·Ådb¶ÔÏó*/
-        this.connect();   /*ÊµÀı»¯µÄÊ±ºò¾ÍÁ¬½ÓÊı¾İ¿â*/
-
+    constructor() {
+        this.dbClient = ''; /*å±æ€§ æ”¾dbå¯¹è±¡*/
+        this.connect();   /*å®ä¾‹åŒ–çš„æ—¶å€™å°±è¿æ¥æ•°æ®åº“*/
     }
 
-    connect(){  /*Á¬½ÓÊı¾İ¿â*/
-      let _that=this;
-      return new Promise((resolve,reject)=>{
-          if(!_that.dbClient){         /*1¡¢½â¾öÊı¾İ¿â¶à´ÎÁ¬½ÓµÄÎÊÌâ*/
-              MongoClient.connect(Config.dbUrl,(err,client)=>{
-
-                  if(err){
-                      reject(err)
-
-                  }else{
-
-                      _that.dbClient=client.db(Config.dbName);
-                      resolve(_that.dbClient)
-                  }
-              })
-
-          }else{
-              resolve(_that.dbClient);
-
-          }
-
-
-      })
-
+    connect() {  /*è¿æ¥æ•°æ®åº“*/
+        let _that = this;
+        return new Promise((resolve, reject) => {
+            if (!_that.dbClient) {         /*1ã€è§£å†³æ•°æ®åº“å¤šæ¬¡è¿æ¥çš„é—®é¢˜*/
+                MongoClient.connect(Config.dbUrl, (err, client) => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        _that.dbClient = client.db(Config.dbName);
+                        resolve(_that.dbClient)
+                    }
+                })
+            } else {
+                resolve(_that.dbClient);
+            }
+        })
     }
 
-    find(collectionName,json){
-
-       return new Promise((resolve,reject)=>{
-
-            this.connect().then((db)=>{
-
-                var result=db.collection(collectionName).find(json);
-
-                result.toArray(function(err,docs){
-
-                    if(err){
+    find(collectionName, json) {
+        return new Promise((resolve, reject) => {
+            this.connect().then((db) => {
+                var result = db.collection(collectionName).find(json);
+                result.toArray(function (err, docs) {
+                    if (err) {
                         reject(err);
                         return;
                     }
                     resolve(docs);
                 })
-
             })
         })
     }
-    update(collectionName,json1,json2){
-        return new Promise((resolve,reject)=>{
 
-
-                this.connect().then((db)=>{
-
-                    //db.user.update({},{$set:{}})
-                    db.collection(collectionName).updateOne(json1,{
-                        $set:json2
-                    },(err,result)=>{
-                        if(err){
-                            reject(err);
-                        }else{
-                            resolve(result);
-                        }
-                    })
-
-                })
-
-        })
-
-    }
-    insert(collectionName,json){
-        return new  Promise((resolve,reject)=>{
-            this.connect().then((db)=>{
-
-                db.collection(collectionName).insertOne(json,function(err,result){
-                    if(err){
+    update(collectionName, json1, json2) {
+        return new Promise((resolve, reject) => {
+            this.connect().then((db) => {
+                //db.user.update({},{$set:{}})
+                db.collection(collectionName).updateOne(json1, {
+                    $set: json2
+                }, (err, result) => {
+                    if (err) {
                         reject(err);
-                    }else{
-
+                    } else {
                         resolve(result);
                     }
                 })
-
-
             })
         })
     }
 
-    remove(collectionName,json){
-
-        return new  Promise((resolve,reject)=>{
-            this.connect().then((db)=>{
-
-                db.collection(collectionName).removeOne(json,function(err,result){
-                    if(err){
+    insert(collectionName, json) {
+        return new Promise((resolve, reject) => {
+            this.connect().then((db) => {
+                db.collection(collectionName).insertOne(json, function (err, result) {
+                    if (err) {
                         reject(err);
-                    }else{
-
+                    } else {
                         resolve(result);
                     }
                 })
-
-
             })
         })
     }
-    getObjectId(id){    /*mongodbÀïÃæ²éÑ¯ _id °Ñ×Ö·û´®×ª»»³É¶ÔÏó*/
 
+    remove(collectionName, json) {
+        return new Promise((resolve, reject) => {
+            this.connect().then((db) => {
+                db.collection(collectionName).removeOne(json, function (err, result) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                })
+            })
+        })
+    }
+
+    getObjectId(id) {    /*mongodbé‡Œé¢æŸ¥è¯¢ _id æŠŠå­—ç¬¦ä¸²è½¬æ¢æˆå¯¹è±¡*/
         return new ObjectID(id);
     }
 }
 
 
-module.exports=Db.getInstance();
+module.exports = Db.getInstance();
